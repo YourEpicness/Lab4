@@ -4,6 +4,7 @@ const form = document.querySelector(".form");
 const locBtn = document.querySelector("#find-me");
 const forecast = document.querySelector(".forecast");
 const forecastTitle = document.querySelector(".forecast-title");
+const days = document.querySelector(".info");
 
 const apiUrl = "https://weatherdbi.herokuapp.com/data/weather";
 let apiUrlLatLong = "empty";
@@ -25,23 +26,28 @@ const getWeatherLatLong = async (lat, long) => {
 const handleForm = async (e) => {
   e.preventDefault();
   const data = await getWeatherDataCity(e.target.city.value);
+  const { region, next_days, currentConditions } = data;
+  const { humidity, dayhour, temp, wind, comment, iconURL } = currentConditions;
+  createForecastDashboard(region);
+  createForecastElement(region, dayhour);
   console.log(data);
 };
 
 const handleLocation = async (e) => {
-  const info = await loc.getCurrentPosition(success, error);
+  const infoPos = await loc.getCurrentPosition(success, error);
 };
 
 const createForecastDashboard = (region) => {
   forecastTitle.innerHTML = "Weather forecast for " + region;
 };
 
-const createForecastElement = (region, day) => {
+const createForecastElement = (region, day, temp) => {
   const article = document.createElement("article");
-  const p_tag = document.createElement("p");
   const h2_tag = document.createElement("h2");
+  const p_tag = document.createElement("p");
 
   h2_tag.innerText = day;
+  p_tag.innerText = `${temp.f}\u00B0 F/${temp.c}\u00B0 C`;
 
   article.appendChild(h2_tag);
   article.appendChild(p_tag);
@@ -65,7 +71,8 @@ async function success(position) {
   const { region, next_days, currentConditions } = data;
   const { humidity, dayhour, temp, wind, comment, iconURL } = currentConditions;
   createForecastDashboard(region);
-  createForecastElement(region, dayhour);
+  const dayInfo = createForecastElement(region, dayhour, temp);
+  days.appendChild(dayInfo);
   return data;
 }
 
